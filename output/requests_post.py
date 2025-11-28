@@ -52,8 +52,7 @@ cookies = {
     "SRCHHPGUSR": "SRCHLANG=en&PV=10.0.0&BZA=0&PREFCOL=0&BRW=XW&BRH=M&CW=1912&CH=962&SCW=1897&SCH=3247&DPR=1.0&UTC=480&B=0&EXLTT=31&HV=1764344860&HVE=CfDJ8BJecyNyfxpMtsfDoM3OqQuJxrIjgxsH-2P74GMwpdiM1ErGKDNOyEuejK8jH8YUtTmP1rDQUe6QQArcCWEM4JtziBPJWXwJoYb2EZ56sejo-2xfnP_AIHTjGhlp5tpZ-8JQ4lbx5SGamNgxd___LqkuHxqcCgoF9jy6TUTog7QCucB9kTa_wu4rTBY1kc28mQ&PRVCW=1912&PRVCH=962",
     "SRCHUSR": "DOB=20251112&DS=1"
 }
-word = "jack"
-data = f'fromLang=en&to=zh-Hans&text={word}%0A%0A&tryFetchingGenderDebiasedTranslatio ns=true&token=4F5tprLYLplF2E_g_4D-0swaZvJkbfkb&key=1764344858538'
+data = 'fromLang=en&to=zh-Hans&text=jack%0A%0A&tryFetchingGenderDebiasedTranslatio ns=true&token=4F5tprLYLplF2E_g_4D-0swaZvJkbfkb&key=1764344858538'
 
 response = requests.post(url, headers=headers, cookies=cookies, data=data)
 print(response.status_code)

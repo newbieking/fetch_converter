@@ -16,7 +16,17 @@ FETCH_RE = re.compile(
     re.MULTILINE | re.DOTALL
 )
 HEADERS_RE = re.compile(r'"headers"\s*:\s*(\{[\s\S]*?\})')
-BODY_RE    = re.compile(r'"body"\s*:\s*(null|["\'].*?["\']|\{[\s\S]*?\})')
+# 1. 先粗抓 "body": 开始 到 行尾逗号 或 下一个顶层 } 之前
+BODY_RE = re.compile(
+    r'"body"\s*:\s*('
+    r'null|'                     # null
+    r'"(?:\\.|[^"\\])*"|'        # 双引号字符串（支持 \" 转义）
+    r"'(?:\\.|[^'\\])*'|"        # 单引号字符串（支持 \' 转义）
+    r'`(?:\\.|[^`\\])*`|'        # 模板字符串
+    r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'  # 最简嵌套{}（支持一级嵌套）
+    r')',
+    re.MULTILINE | re.DOTALL
+)
 METHOD_RE  = re.compile(r'"method"\s*:\s*["\'](.*?)["\']')
 COOKIE_RE  = re.compile(r'"cookie"\s*:\s*["\'](.*?)["\']')
 
@@ -53,35 +63,47 @@ def convert_one_fetch(code: str) -> str:
     if cm := COOKIE_RE.search(opt):
         cookies = cookie_str_to_dict(cm.group(1))
 
+    json_data = None
     data = None
     if bm := BODY_RE.search(opt):
-        body_raw = bm.group(1).strip()
-        if body_raw == 'null':
-            data = None
-        elif body_raw.startswith('"') or body_raw.startswith("'"):
-            data = body_raw[1:-1]
+        raw = bm.group(1).strip()
+        if raw == 'null':
+            pass
+        elif raw.startswith('"') and raw.endswith('"'):
+            # 去掉两端引号，再解转义
+            json_str = raw[1:-1].encode('utf-8').decode('unicode_escape')
+            try:
+                json_data = json.loads(json_str)
+            except ValueError:
+                data = json_str
+        elif raw.startswith('{') and raw.endswith('}'):
+            json_data = js_obj_to_py_dict(raw)
         else:
-            data = body_raw
+            data = raw
 
     lines = ['import requests', '', f'url = "{url}"']
     if headers:
         lines.append(f'headers = {json.dumps(headers, ensure_ascii=False, indent=4)}')
     if cookies:
         lines.append(f'cookies = {json.dumps(cookies, ensure_ascii=False, indent=4)}')
-    if data is not None:
+    if json_data is not None:
+        lines.append(f'json_data = {json.dumps(json_data, ensure_ascii=False, indent=4)}')
+    elif data is not None:
         lines.append(f'data = {repr(data)}')
 
     args = []
     if headers: args.append('headers=headers')
     if cookies: args.append('cookies=cookies')
-    if data is not None: args.append('data=data')
+    if json_data is not None:
+        args.append('json=json_data')
+    elif data is not None:
+        args.append('data=data')
 
     lines.append('')
     lines.append(f"response = requests.{method.lower()}(url, {', '.join(args)})")
     lines.append('print(response.status_code)')
     lines.append('print(response.text)')
     return '\n'.join(lines)
-
 # ---------- 主流程 ----------
 def main():
     if len(sys.argv) < 2:
