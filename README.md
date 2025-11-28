@@ -1,4 +1,3 @@
-```markdown
 # fetch2requests
 
 把 **Node.js fetch** 代码一键转成 **Python requests** 脚本的小工具。  
@@ -8,22 +7,22 @@
 
 ## ✨ 特性
 
-- ✅ 正则提取，无需 Node.js 环境  
-- ✅ 支持 `JSON.stringify({...})`、模板字符串、转义引号  
-- ✅ 自动使用 `json=` 或 `data=`，生成可直接运行的 `.py` 文件  
-- ✅ 批量处理：一次读取整个 `.js` 文件，输出多段 `requests` 代码  
+- ✅ 正则提取，无需 Node.js 环境
+- ✅ 支持 `JSON.stringify({...})`、模板字符串、转义引号
+- ✅ 自动使用 `json=` 或 `data=`，生成可直接运行的 `.py` 文件
+- ✅ 批量处理：一次读取整个 `.js` 文件，输出多段 `requests` 代码
 - ✅ 单文件脚本，零依赖（仅标准库）
 
 ---
 
 ## 🚀 快速开始
 
-1. 克隆或下载脚本  
+1. 克隆或下载脚本
    ```bash
    curl -O https://raw.githubusercontent.com/newbieking/fetch_converter/main/convert_nodejs_2_requests.py
    ```
 
-2. 准备一段包含 `fetch(...)` 的 JS 文件，例如 `demo.js`  
+2. 准备一段包含 `fetch(...)` 的 JS 文件，例如 `demo.js`
    ```js
    fetch("https://httpbin.org/post", {
      method: "POST",
@@ -32,16 +31,15 @@
    });
    ```
    我通常在浏览器的开发者工具中，直接copy捕获的数据请求，复制相应的fecth（nodejs版本）来快速生成相应的请求代码：
-    例如:
-![img.png](img.png)
+   例如:
+   ![img.png](img.png)
 
-
-3. 运行转换  
+3. 运行转换
    ```bash
    python convert_nodejs_2_requests.py demo.js demo.py
    ```
 
-4. 直接执行生成的 Python 文件  
+4. 直接执行生成的 Python 文件
    ```bash
    python demo.py
    ```
@@ -54,10 +52,10 @@
 python convert_nodejs_2_requests.py <input.js> [output.py]
 ```
 
-| 参数        | 说明 |
-|-------------|------|
+| 参数          | 说明                         |
+|-------------|----------------------------|
 | `input.js`  | **必须**，含 `fetch` 调用的 JS 文件 |
-| `output.py` | **可选**，不指定时结果打印到终端 |
+| `output.py` | **可选**，不指定时结果打印到终端         |
 
 ---
 
@@ -67,9 +65,9 @@ python convert_nodejs_2_requests.py <input.js> [output.py]
 
 ```js
 fetch("https://cm.bilibili.com/cm/api/fees/pc", {
-  "headers": { "content-type": "application/json", ... },
-  "body": "{\"uploads\":[{\"src_id\":5614,\"track_id\":\"\", ...}]}",
-  "method": "POST"
+    "headers": {"content-type": "application/json", ...},
+    "body": "{\"uploads\":[{\"src_id\":5614,\"track_id\":\"\", ...}]}",
+    "method": "POST"
 });
 ```
 
@@ -83,8 +81,8 @@ headers = {
     "content-type": "application/json",
     ...
 }
-cookies = { ... }
-json_data = {"uploads": [{"src_id": 5614, "track_id": "", ... }]}
+cookies = {...}
+json_data = {"uploads": [{"src_id": 5614, "track_id": "", ...}]}
 
 response = requests.post(url, headers=headers, cookies=cookies, json=json_data)
 print(response.status_code)
@@ -95,13 +93,13 @@ print(response.text)
 
 ## ⚙️ 脚本核心正则
 
-| 名称       | 用途 |
-|------------|------|
-| `FETCH_RE` | 提取 `fetch(url, { ... })` 整体 |
-| `HEADERS_RE` | 提取 `"headers": {...}` |
-| `BODY_RE` | **升级正则**，支持跨行 JSON、转义引号、模板字符串 |
-| `METHOD_RE` | 提取 `"method": "POST"` |
-| `COOKIE_RE` | 提取 `"cookie": "a=1; b=2"` |
+| 名称           | 用途                            |
+|--------------|-------------------------------|
+| `FETCH_RE`   | 提取 `fetch(url, { ... })` 整体   |
+| `HEADERS_RE` | 提取 `"headers": {...}`         |
+| `BODY_RE`    | **升级正则**，支持跨行 JSON、转义引号、模板字符串 |
+| `METHOD_RE`  | 提取 `"method": "POST"`         |
+| `COOKIE_RE`  | 提取 `"cookie": "a=1; b=2"`     |
 
 ---
 
