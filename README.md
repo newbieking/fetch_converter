@@ -1,4 +1,4 @@
-# fetch2requests
+# fetch_converter
 
 把 **Node.js fetch** 代码一键转成 **Python requests** 脚本的小工具。  
 支持自动识别 JSON / 表单 / 纯文本 body，处理 cookie、header、method 等全部参数，**跨行 JSON 也能完整解析**。
